@@ -35,7 +35,7 @@ composer.json                 → PHP
 
 ---
 
-# 📦 Step 2: Identify Build Output
+# 📦 Step 2: Identify Build Output (Artifact)
 
 ```bash
 Java (Spring Boot) → .jar  
@@ -123,19 +123,6 @@ Nginx → Gunicorn → Django
 
 ---
 
-# ⚡ Final Cheat Sheet
-
-| Application | Server          |
-| ----------- | --------------- |
-| Java WAR    | Tomcat          |
-| Java JAR    | Embedded Server |
-| React       | Nginx           |
-| Node.js     | Node Runtime    |
-| Python      | Gunicorn        |
-| PHP         | PHP-FPM + Nginx |
-
----
-
 # 🎨 Visual Flow
 
 ```mermaid
@@ -169,66 +156,3 @@ flowchart LR
 ✨ Always identify project before writing Dockerfile
 
 ---
-# 🔥 Dockerfile Templates
-
----
-
-## ✅ .NET Backend
-
-```dockerfile
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
-WORKDIR /app
-COPY . .
-RUN dotnet restore
-RUN dotnet publish -c Release -o /out
-
-FROM mcr.microsoft.com/dotnet/aspnet:7.0
-WORKDIR /app
-COPY --from=build /out .
-EXPOSE 80
-ENTRYPOINT ["dotnet", "YourApp.dll"]
-
-```
----
-
-## ✅ Node.js Application
-
-```dockerfile
-FROM node:18
-
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm install
-
-COPY . .
-
-EXPOSE 3000
-
-CMD ["npm", "start"]
-```
----
-## ✅ Python
-```dockerfile
-FROM python:3.10
-WORKDIR /app
-COPY . .
-RUN pip install -r requirements.txt
-EXPOSE 5000
-CMD ["python", "app.py"]
-```
----
-## ✅ Java (Spring Boot)
-```dockerfile
-FROM openjdk:17
-WORKDIR /app
-COPY target/app.jar app.jar
-EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
-```
----
-## ✅ React / Static Website (Nginx)
-```dockerfile
-FROM nginx:alpine
-COPY build/ /usr/share/nginx/html
-EXPOSE 80
