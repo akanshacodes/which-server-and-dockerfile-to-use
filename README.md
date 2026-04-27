@@ -25,11 +25,12 @@ Many developers get confused about:
 # 🧠 Step 1: Identify Build Tool
 
 ```bash
-pom.xml            → Maven  
-build.gradle       → Gradle  
-package.json       → Node.js  
-requirements.txt   → Python  
-composer.json      → PHP  
+.csproj/Program.cs            → .NET
+pom.xml                       → Maven  
+build.gradle                  → Gradle  
+package.json                  → Node.js  
+requirements.txt              → Python  
+composer.json                 → PHP  
 ```
 
 ---
@@ -72,6 +73,14 @@ Python    → Gunicorn / uWSGI
 PHP       → PHP-FPM + Nginx
 .NET      → Kestrel / IIS
 ```
+| Application | Server          |
+| ----------- | --------------- |
+| Java WAR    | Tomcat          |
+| Java JAR    | Embedded Server |
+| React       | Nginx           |
+| Node.js     | Node Runtime    |
+| Python      | Gunicorn        |
+| PHP         | PHP-FPM + Nginx |
 
 ---
 
@@ -160,22 +169,66 @@ flowchart LR
 ✨ Always identify project before writing Dockerfile
 
 ---
-
-# 🧑‍💻 Author
-
-**Akansha Saxena**
+# 🔥 Dockerfile Templates
 
 ---
 
-# ⭐ Support
+## ✅ .NET Backend
 
-If this helped you:
+```dockerfile
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+WORKDIR /app
+COPY . .
+RUN dotnet restore
+RUN dotnet publish -c Release -o /out
 
-👉 Star this repo
-👉 Share with DevOps learners
+FROM mcr.microsoft.com/dotnet/aspnet:7.0
+WORKDIR /app
+COPY --from=build /out .
+EXPOSE 80
+ENTRYPOINT ["dotnet", "YourApp.dll"]
 
+```
 ---
 
-<p align="center">
-  🔥 Built for Developers | DevOps | Interview Prep 🔥
-</p>
+## ✅ Node.js Application
+
+```dockerfile
+FROM node:18
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+EXPOSE 3000
+
+CMD ["npm", "start"]
+```
+---
+## ✅ Python
+```dockerfile
+FROM python:3.10
+WORKDIR /app
+COPY . .
+RUN pip install -r requirements.txt
+EXPOSE 5000
+CMD ["python", "app.py"]
+```
+---
+## ✅ Java (Spring Boot)
+```dockerfile
+FROM openjdk:17
+WORKDIR /app
+COPY target/app.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]
+```
+---
+## ✅ React / Static Website (Nginx)
+```dockerfile
+FROM nginx:alpine
+COPY build/ /usr/share/nginx/html
+EXPOSE 80
